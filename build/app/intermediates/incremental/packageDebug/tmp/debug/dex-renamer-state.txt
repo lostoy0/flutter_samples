@@ -1,0 +1,4 @@
+#Wed Nov 15 01:50:51 PST 2023
+base.0=/Users/raymondlee/Projects/Private/flutter_samples/flutter_samples/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
