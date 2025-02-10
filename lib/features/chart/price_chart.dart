@@ -16,32 +16,9 @@ class _PriceChartState extends State<PriceChart>
   late AnimationController _controller;
   late Animation<double> _animation;
   int _selectedInterval = 0; // 0: 4H, 1: 1D, 2: MAX
-  // int _touchedIndex = -1;
   Timer? _debounceTimer;
 
-  final List<List<FlSpot>> _data = [
-    // // 4H data
-    // [
-    //   FlSpot(0, 0.08),
-    //   FlSpot(1, 0.082),
-    //   FlSpot(2, 0.081),
-    //   FlSpot(3, 0.085),
-    // ],
-    // // 1D data
-    // [
-    //   FlSpot(0, 0.08),
-    //   FlSpot(1, 0.085),
-    //   FlSpot(2, 0.083),
-    //   FlSpot(3, 0.087),
-    // ],
-    // // MAX data
-    // [
-    //   FlSpot(0, 0.08),
-    //   FlSpot(1, 0.09),
-    //   FlSpot(2, 0.085),
-    //   FlSpot(3, 0.088),
-    // ],
-  ];
+  final List<List<FlSpot>> _data = [];
 
   @override
   void initState() {
@@ -130,7 +107,9 @@ class _PriceChartState extends State<PriceChart>
                       }).toList();
                     },
                   ),
-                  lineBarsData: [getLineChartBarData(_data[_selectedInterval], Colors.green)],
+                  lineBarsData: [
+                    getLineChartBarData(_data[_selectedInterval], Colors.green)
+                  ],
                   titlesData: const FlTitlesData(show: false),
                   borderData: FlBorderData(show: false),
                   gridData: const FlGridData(show: false),
@@ -142,21 +121,6 @@ class _PriceChartState extends State<PriceChart>
       ],
     );
   }
-
-  // List<LineChartBarData> getLineChartBarDataList() {
-  //   if (_touchedIndex > 0 && _touchedIndex < _data[_selectedInterval].length) {
-  //     return [
-  //       getLineChartBarData(
-  //           _data[_selectedInterval].sublist(0, _touchedIndex), Colors.green),
-  //       getLineChartBarData(
-  //           _data[_selectedInterval].sublist(_touchedIndex), Colors.grey),
-  //     ];
-  //   }
-  //   return [
-  //     getLineChartBarData(_data[_selectedInterval],
-  //         _touchedIndex == 0 ? Colors.grey : Colors.green),
-  //   ];
-  // }
 
   LineChartBarData getLineChartBarData(List<FlSpot> spots, Color color) {
     return LineChartBarData(
