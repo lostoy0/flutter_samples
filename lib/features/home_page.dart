@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_samples/widgets/bottom_sheet_dialog.dart';
 import 'package:get/route_manager.dart';
-import 'package:get/state_manager.dart';
 
 import '../router.dart';
 import '../widgets/slanted_background.dart';
@@ -28,7 +26,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     debugPrint('DateTime.now().millisecond: ${DateTime.now().millisecond}');
-    debugPrint('DateTime.now().millisecondsSinceEpoch: ${DateTime.now().millisecondsSinceEpoch}');
+    debugPrint(
+        'DateTime.now().millisecondsSinceEpoch: ${DateTime.now().millisecondsSinceEpoch}');
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -56,9 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: SingleChildScrollView(
         child: Column(
           // Column is also a layout widget. It takes a list of children and
           // arranges them vertically. By default, it sizes itself to fit its
@@ -75,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const SizedBox(height: 20,),
             const Text(
               'You have pushed the button this many times:',
             ),
@@ -112,6 +110,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 Get.toNamed(Pages.easyRefreshPage2);
               },
               child: Text('EasyRefreshPage2'),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.toNamed(Pages.priceChart);
+              },
+              child: Text('Go to PriceChart'),
             ),
           ],
         ),

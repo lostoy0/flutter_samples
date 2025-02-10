@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SlantedBackground extends StatelessWidget {
+  const SlantedBackground({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -9,7 +11,7 @@ class SlantedBackground extends StatelessWidget {
           clipper: SlantedClipper(),
           child: Container(
             color: Colors.blue,
-            height: 200,
+            height: 100,
           ),
         ),
         const Center(
@@ -32,7 +34,7 @@ class SlantedClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     Path path = Path();
     path.lineTo(0, size.height);
-    path.lineTo(size.width, size.height - 100); // Adjust the value for the slant
+    path.lineTo(size.width, size.height/2); // Adjust the value for the slant
     path.lineTo(size.width, 0);
     path.close();
     return path;
