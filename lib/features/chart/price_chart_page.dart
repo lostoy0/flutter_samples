@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_samples/features/chart/price_chart.dart';
+import 'package:flutter_samples/features/chart/price_chart_custom.dart';
 
 class PriceChartPage extends StatelessWidget {
   const PriceChartPage({super.key});

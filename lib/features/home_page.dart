@@ -117,6 +117,12 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text('Go to PriceChart'),
             ),
+            TextButton(
+              onPressed: () {
+                Get.toNamed(Pages.priceChartCustom);
+              },
+              child: Text('Go to PriceChartCustom'),
+            ),
           ],
         ),
       ),
