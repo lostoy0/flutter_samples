@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
 
 class PriceChartCustom extends StatefulWidget {
   final List<double> prices;
@@ -77,7 +78,8 @@ class _ChartPainter extends CustomPainter {
 
     return prices.asMap().entries.map((entry) {
       final x = entry.key * stepX;
-      final y = mainChartHeight - (entry.value - minPrice) / range * mainChartHeight;
+      final y =
+          mainChartHeight - (entry.value - minPrice) / range * mainChartHeight;
       return Offset(x, y + extraHeight); // 调整价格点 y 坐标
     }).toList();
   }
@@ -86,20 +88,51 @@ class _ChartPainter extends CustomPainter {
     Path path = Path()
       ..moveTo(points.first.dx, points.first.dy)
       ..addPolygon(points, false)
-      ..lineTo(size.width, mainChartHeight + extraHeight)
-      ..lineTo(0, mainChartHeight + extraHeight)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
       ..close();
 
-    final gradient = LinearGradient(
-      colors: [Colors.blue.withOpacity(0.3), Colors.transparent],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    );
+    if (selectedX == null) {
+      final Paint fullPaint = Paint()
+        ..shader = LinearGradient(
+          colors: [Colors.blue.withOpacity(0.3), Colors.transparent],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ).createShader(Rect.fromLTRB(0, 0, size.width, size.height));
 
-    canvas.drawPath(
-      path,
-      Paint()..shader = gradient.createShader(Rect.fromLTRB(0, 0, size.width, mainChartHeight + extraHeight)),
-    );
+      canvas.drawPath(path, fullPaint);
+      return;
+    }
+
+    final Rect leftRect = Rect.fromLTRB(0, 0, selectedX!, size.height);
+    final Rect rightRect =
+        Rect.fromLTRB(selectedX!, 0, size.width, size.height);
+
+    final Paint leftPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [Colors.blue.withOpacity(0.3), Colors.transparent],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(leftRect);
+
+    final Paint rightPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [Colors.grey.withOpacity(0.3), Colors.transparent],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(rightRect);
+
+    // 绘制左侧渐变区域
+    canvas.save();
+    canvas.clipRect(leftRect);
+    canvas.drawPath(path, leftPaint);
+    canvas.restore();
+
+    // 绘制右侧渐变区域
+    canvas.save();
+    canvas.clipRect(rightRect);
+    canvas.drawPath(path, rightPaint);
+    canvas.restore();
   }
 
   void _drawPriceLine(Canvas canvas, List<Offset> points) {
@@ -115,7 +148,11 @@ class _ChartPainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    int splitIndex = selectedX == null ? points.length : (selectedX! / points.last.dx * points.length).clamp(0, points.length - 1).toInt();
+    int splitIndex = selectedX == null
+        ? points.length
+        : (selectedX! / points.last.dx * points.length)
+            .clamp(0, points.length - 1)
+            .toInt();
 
     for (int i = 0; i < points.length - 1; i++) {
       final start = points[i];
@@ -139,7 +176,8 @@ class _ChartPainter extends CustomPainter {
     double startY = extraHeight; // 从 40px（顶部文本区域）开始绘制竖线
     while (startY < mainChartHeight + extraHeight) {
       double endY = startY + dashHeight;
-      if (endY > mainChartHeight + extraHeight) endY = mainChartHeight + extraHeight;
+      if (endY > mainChartHeight + extraHeight)
+        endY = mainChartHeight + extraHeight;
       canvas.drawLine(Offset(clampedX, startY), Offset(clampedX, endY), paint);
       startY += dashHeight + dashSpace;
     }

@@ -39,7 +39,7 @@ class _PriceChartState extends State<PriceChart2>
   void initState() {
     super.initState();
     // 初始化三个数据集，每个包含50个数据点
-    _data = List.generate(3, (index) => generatePrices(50));
+    _data = List.generate(3, (index) => generatePrices(500));
     _oldPrices = List.from(_data[0]);
     _currentPrices = List.from(_data[0]);
 
@@ -77,10 +77,10 @@ class _PriceChartState extends State<PriceChart2>
   }
 
   List<double> _interpolatePrices(
-      List<double> start,
-      List<double> end,
-      double progress,
-      ) {
+    List<double> start,
+    List<double> end,
+    double progress,
+  ) {
     assert(start.length == end.length, "Data length mismatch");
     return List.generate(start.length, (i) {
       return start[i] + (end[i] - start[i]) * progress;
