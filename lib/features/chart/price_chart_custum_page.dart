@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_samples/features/chart/price_chart_custom.dart';
 
@@ -28,32 +27,63 @@ class _PriceChartState extends State<PriceChart2>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  int _selectedInterval = 0; // 0: 4H, 1: 1D, 2: MAX
+  int _selectedInterval = 0;
   Timer? _debounceTimer;
   double? _touchedXValue;
 
-  List<ShowingTooltipIndicators> _activeTooltips = [];
-
-  final List<List<double>> _data = [];
+  List<List<double>> _data = [];
+  late List<double> _oldPrices;
+  late List<double> _currentPrices;
 
   @override
   void initState() {
     super.initState();
-    for (int i = 0; i < 3; i++) {
-      _data.add(generatePrices(50));
-    }
+    // 初始化三个数据集，每个包含50个数据点
+    _data = List.generate(3, (index) => generatePrices(50));
+    _oldPrices = List.from(_data[0]);
+    _currentPrices = List.from(_data[0]);
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+    _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
+      ..addListener(() {
+        setState(() {
+          // 根据动画进度插值生成过渡数据
+          _currentPrices = _interpolatePrices(
+            _oldPrices,
+            _data[_selectedInterval],
+            _animation.value,
+          );
+        });
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          // 动画完成后更新旧数据
+          _oldPrices = List.from(_data[_selectedInterval]);
+        }
+      });
   }
 
   void _switchInterval(int index) {
+    if (index == _selectedInterval) return;
     setState(() {
+      _oldPrices = List.from(_currentPrices);
       _selectedInterval = index;
       _controller.reset();
       _controller.forward();
+    });
+  }
+
+  List<double> _interpolatePrices(
+      List<double> start,
+      List<double> end,
+      double progress,
+      ) {
+    assert(start.length == end.length, "Data length mismatch");
+    return List.generate(start.length, (i) {
+      return start[i] + (end[i] - start[i]) * progress;
     });
   }
 
@@ -64,7 +94,7 @@ class _PriceChartState extends State<PriceChart2>
         Container(
           height: 300,
           color: Colors.transparent,
-          child: PriceChartCustom(prices: _data[_selectedInterval]),
+          child: PriceChartCustom(prices: _currentPrices),
         ),
         Container(
           color: Colors.transparent,
@@ -73,23 +103,29 @@ class _PriceChartState extends State<PriceChart2>
             children: [
               TextButton(
                 onPressed: () => _switchInterval(0),
-                child: const Text(
+                child: Text(
                   '4H',
-                  style: TextStyle(color: Colors.green),
+                  style: TextStyle(
+                    color: _selectedInterval == 0 ? Colors.green : Colors.grey,
+                  ),
                 ),
               ),
               TextButton(
                 onPressed: () => _switchInterval(1),
-                child: const Text(
+                child: Text(
                   '1D',
-                  style: TextStyle(color: Colors.green),
+                  style: TextStyle(
+                    color: _selectedInterval == 1 ? Colors.green : Colors.grey,
+                  ),
                 ),
               ),
               TextButton(
                 onPressed: () => _switchInterval(2),
-                child: const Text(
+                child: Text(
                   'MAX',
-                  style: TextStyle(color: Colors.green),
+                  style: TextStyle(
+                    color: _selectedInterval == 2 ? Colors.green : Colors.grey,
+                  ),
                 ),
               ),
             ],
@@ -100,25 +136,15 @@ class _PriceChartState extends State<PriceChart2>
   }
 
   List<double> generatePrices(int count) {
-    final Random random = Random();
-    final List<double> prices = [];
-
-    double price = 0.08; // 初始价格
+    final random = Random();
+    List<double> prices = [];
+    double price = 0.08;
     for (int i = 0; i < count; i++) {
-      // 生成一个随机的价格变化
-      double delta =
-          (random.nextDouble() - 0.5) * 0.02; // 随机变化范围在 -0.01 到 0.01 之间
+      double delta = (random.nextDouble() - 0.5) * 0.02;
       price += delta;
-
-      // 确保价格不会为负数
-      if (price < 0) price = 0;
-
-      // lastY 保留8位小数
-      price = double.parse(price.toStringAsFixed(8));
-      // 添加 FlSpot 节点
-      prices.add(price);
+      price = price.clamp(0, double.infinity);
+      prices.add(double.parse(price.toStringAsFixed(8)));
     }
-
     return prices;
   }
 
