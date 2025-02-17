@@ -40,6 +40,7 @@ dependencies:
   easy_refresh: ^3.4.0
   fl_chart: ^0.70.2
   logger: ^2.5.0
+  device_info_plus: ^11.3.0
 
 dev_dependencies:
   flutter_test:
