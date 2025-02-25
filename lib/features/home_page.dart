@@ -123,6 +123,12 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text('Go to PriceChartCustom'),
             ),
+            TextButton(
+              onPressed: () {
+                Get.toNamed(Pages.rippleDotPage);
+              },
+              child: Text('Go to rippleDotPage'),
+            ),
           ],
         ),
       ),
