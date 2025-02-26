@@ -9,12 +9,17 @@ class RippleDotDemo extends StatelessWidget {
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,
-        child: Center(
-          child: SizedBox(
-            width: 40,
-            height: 40,
-            child: RippleDot(),
-          ),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: RippleDot(
+                radius: 20,
+                color: Colors.blue,
+                centerPointRadius: 5,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -22,7 +27,15 @@ class RippleDotDemo extends StatelessWidget {
 }
 
 class RippleDot extends StatefulWidget {
-  const RippleDot({super.key});
+  final double radius;
+  final Color color;
+  final double centerPointRadius;
+
+  const RippleDot(
+      {super.key,
+      required this.radius,
+      required this.color,
+      required this.centerPointRadius});
 
   @override
   State<RippleDot> createState() => _RippleDotState();
@@ -47,24 +60,21 @@ class _RippleDotState extends State<RippleDot>
     super.dispose();
   }
 
-  int _count = 0;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 40,
-      height: 40,
+      width: 2 * widget.radius,
+      height: 2 * widget.radius,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          if (_count < 60) {
-            _count++;
-          } else {
-            _count = 0;
-          }
           return CustomPaint(
-            size: const Size.square(40),
-            painter: RippleDotPainter(_controller.value),
+            size: Size.square(2 * widget.radius),
+            painter: RippleDotPainter(
+                progress: _controller.value,
+                radius: widget.radius,
+                color: widget.color,
+                centerPointRadius: widget.centerPointRadius),
           );
         },
       ),
@@ -72,34 +82,33 @@ class _RippleDotState extends State<RippleDot>
   }
 }
 
-
-int _count2 = 0;
-
 class RippleDotPainter extends CustomPainter {
   final double progress;
+  final double radius;
+  final Color color;
+  final double centerPointRadius;
 
-  RippleDotPainter(this.progress);
+  RippleDotPainter(
+      {required this.progress,
+      required this.radius,
+      required this.color,
+      required this.centerPointRadius});
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (_count2 < 60) {
-      _count2++;
-    } else {
-      _count2 = 0;
-    }
-    final center = Offset(size.width / 2, size.height / 2);
-    final dotPaint = Paint()..color = Colors.blueAccent;
+    final dotPaint = Paint()..color = color;
     final ripplePaint = Paint()
-      ..color = Colors.blueAccent.withOpacity(1 - progress)
+      ..color = color.withOpacity(1 - progress)
       ..style = PaintingStyle.fill
       ..strokeWidth = 2;
 
+    final center = Offset(size.width / 2, size.height / 2);
+
     // 画中心的圆点
-    canvas.drawCircle(center, 5, dotPaint);
+    canvas.drawCircle(center, centerPointRadius, dotPaint);
 
     // 画扩散的水纹
-    final maxRadius = 20;
-    final rippleRadius = maxRadius * progress;
+    final rippleRadius = radius * progress;
     canvas.drawCircle(center, rippleRadius, ripplePaint);
   }
 

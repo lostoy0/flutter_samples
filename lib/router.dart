@@ -27,6 +27,6 @@ class Pages {
     GetPage(name: easyRefreshPage2, page: () => const EasyRefreshExample()),
     GetPage(name: priceChart, page: () => const PriceChartPage()),
     GetPage(name: priceChartCustom, page: () => const PriceChartCustomPage()),
-    GetPage(name: rippleDotPage, page: () => const RippleDot()),
+    GetPage(name: rippleDotPage, page: () => const RippleDotDemo()),
   ];
 }
