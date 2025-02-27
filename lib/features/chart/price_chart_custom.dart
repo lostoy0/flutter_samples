@@ -1,9 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_samples/features/chart/price_chart_custum_page.dart';
 
 class PriceChartCustom extends StatefulWidget {
-  final List<double> prices;
+  final List<KlinePoint> prices;
 
   const PriceChartCustom({super.key, required this.prices});
 
@@ -48,7 +49,7 @@ class _PriceChartState extends State<PriceChartCustom> {
 }
 
 class _ChartPainter extends CustomPainter {
-  final List<double> prices;
+  final List<KlinePoint> prices;
   final double? selectedX;
 
   static const double mainChartHeight = 260; // 主图的高度
@@ -71,15 +72,15 @@ class _ChartPainter extends CustomPainter {
   }
 
   List<Offset> _calculatePricePoints(Size size) {
-    final minPrice = prices.reduce(math.min);
-    final maxPrice = prices.reduce(math.max);
-    final range = maxPrice - minPrice;
+    final minPrice = prices.reduce((a, b) => a.close < b.close ? a : b);
+    final maxPrice = prices.reduce((a, b) => a.close > b.close ? a : b);
+    final range = maxPrice.close - minPrice.close;
     final stepX = size.width / (prices.length - 1);
 
     return prices.asMap().entries.map((entry) {
       final x = entry.key * stepX;
       final y =
-          mainChartHeight - (entry.value - minPrice) / range * mainChartHeight;
+          mainChartHeight - (entry.value.close - minPrice.close) / range * mainChartHeight;
       return Offset(x, y + extraHeight); // 调整价格点 y 坐标
     }).toList();
   }
@@ -191,7 +192,7 @@ class _ChartPainter extends CustomPainter {
 
     final textPainter = TextPainter(
       text: TextSpan(
-        text: '\$${price.toStringAsFixed(2)}',
+        text: '\$${price.close.toStringAsFixed(2)}',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 12,

@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_samples/features/chart/price_chart_custom.dart';
+import 'package:flutter_samples/global_instances.dart';
 
 class PriceChartCustomPage extends StatelessWidget {
   const PriceChartCustomPage({super.key});
@@ -23,6 +26,33 @@ class PriceChart2 extends StatefulWidget {
   State<PriceChart2> createState() => _PriceChartState();
 }
 
+/*
+{
+    "close": "2.53139181",
+    "time": 1740580200
+  }
+ */
+class KlinePoint {
+  final double close;
+  final int time;
+
+  KlinePoint({required this.close, required this.time});
+
+  factory KlinePoint.fromJson(Map<String, dynamic> json) {
+    return KlinePoint(
+      close: double.parse(json['close']),
+      time: json['time'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'close': close,
+      'time': time,
+    };
+  }
+}
+
 class _PriceChartState extends State<PriceChart2>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -31,9 +61,9 @@ class _PriceChartState extends State<PriceChart2>
   Timer? _debounceTimer;
   double? _touchedXValue;
 
-  List<List<double>> _data = [];
-  late List<double> _oldPrices;
-  late List<double> _currentPrices;
+  List<List<KlinePoint>> _data = [];
+  late List<KlinePoint> _oldPrices;
+  late List<KlinePoint> _currentPrices;
 
   @override
   void initState() {
@@ -64,6 +94,26 @@ class _PriceChartState extends State<PriceChart2>
           _oldPrices = List.from(_data[_selectedInterval]);
         }
       });
+
+    loadJsonData().then((kline) {
+      setState(() {
+        _data = List.generate(3, (index) => kline);
+        _oldPrices = List.from(_data[0]);
+        _currentPrices = List.from(_data[0]);
+      });
+    }).onError((e, s) {
+      logger.e(e, stackTrace: s);
+    });
+  }
+
+  Future<List<KlinePoint>> loadJsonData() async {
+    String jsonString = await rootBundle.loadString('assets/json/kline.json');
+    Map<String, dynamic> klineJson = jsonDecode(jsonString);
+    List<dynamic> points = klineJson['data']['points'];
+    List<KlinePoint> kline = points.map((point) {
+      return KlinePoint.fromJson(point);
+    }).toList();
+    return kline;
   }
 
   void _switchInterval(int index) {
@@ -76,14 +126,16 @@ class _PriceChartState extends State<PriceChart2>
     });
   }
 
-  List<double> _interpolatePrices(
-    List<double> start,
-    List<double> end,
+  List<KlinePoint> _interpolatePrices(
+    List<KlinePoint> start,
+    List<KlinePoint> end,
     double progress,
   ) {
     assert(start.length == end.length, "Data length mismatch");
     return List.generate(start.length, (i) {
-      return start[i] + (end[i] - start[i]) * progress;
+      return KlinePoint(
+          close: start[i].close + (end[i].close - start[i].close) * progress,
+          time: start[i].time);
     });
   }
 
@@ -135,15 +187,17 @@ class _PriceChartState extends State<PriceChart2>
     );
   }
 
-  List<double> generatePrices(int count) {
+  List<KlinePoint> generatePrices(int count) {
     final random = Random();
-    List<double> prices = [];
+    List<KlinePoint> prices = [];
     double price = 0.08;
     for (int i = 0; i < count; i++) {
       double delta = (random.nextDouble() - 0.5) * 0.02;
       price += delta;
       price = price.clamp(0, double.infinity);
-      prices.add(double.parse(price.toStringAsFixed(8)));
+      prices.add(KlinePoint(
+          close: double.parse(price.toStringAsFixed(8)),
+          time: DateTime.now().millisecondsSinceEpoch));
     }
     return prices;
   }
