@@ -95,9 +95,13 @@ class _PriceChartState extends State<PriceChart2>
         }
       });
 
-    loadJsonData().then((kline) {
+    Future.wait([
+      loadJsonData("assets/json/kline_4h.json"),
+      loadJsonData("assets/json/kline_1d.json"),
+      loadJsonData("assets/json/kline_1y.json"),
+    ]).then((data) {
+      _data = data;
       setState(() {
-        _data = List.generate(3, (index) => kline);
         _oldPrices = List.from(_data[0]);
         _currentPrices = List.from(_data[0]);
       });
@@ -106,8 +110,8 @@ class _PriceChartState extends State<PriceChart2>
     });
   }
 
-  Future<List<KlinePoint>> loadJsonData() async {
-    String jsonString = await rootBundle.loadString('assets/json/kline.json');
+  Future<List<KlinePoint>> loadJsonData(String fileName) async {
+    String jsonString = await rootBundle.loadString(fileName);
     Map<String, dynamic> klineJson = jsonDecode(jsonString);
     List<dynamic> points = klineJson['data']['points'];
     List<KlinePoint> kline = points.map((point) {

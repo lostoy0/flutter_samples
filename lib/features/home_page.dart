@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_samples/widgets/bottom_sheet_dialog.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
 
 import '../router.dart';
 import '../widgets/slanted_background.dart';
+
+class MyHomePageController extends GetxController {
+  int _counter = 0;
+  void incrementCounter() {
+    _counter++;
+  }
+
+  int get counter => _counter;
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});

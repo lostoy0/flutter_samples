@@ -51,11 +51,20 @@ class _PriceChartState extends State<PriceChartCustom> {
 class _ChartPainter extends CustomPainter {
   final List<KlinePoint> prices;
   final double? selectedX;
+  final Color mainLineColor;
+  final Color greyLineColor;
+  final Color verticalLineColor;
 
   static const double mainChartHeight = 260; // 主图的高度
   static const double extraHeight = 40; // 顶部文本区域的高度
 
-  _ChartPainter({required this.prices, this.selectedX});
+  _ChartPainter({
+    required this.prices,
+    this.selectedX,
+    this.mainLineColor = Colors.green,
+    this.greyLineColor = Colors.grey,
+    this.verticalLineColor = Colors.grey,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -79,8 +88,8 @@ class _ChartPainter extends CustomPainter {
 
     return prices.asMap().entries.map((entry) {
       final x = entry.key * stepX;
-      final y =
-          mainChartHeight - (entry.value.close - minPrice.close) / range * mainChartHeight;
+      final y = mainChartHeight -
+          (entry.value.close - minPrice.close) / range * mainChartHeight;
       return Offset(x, y + extraHeight); // 调整价格点 y 坐标
     }).toList();
   }
@@ -142,12 +151,18 @@ class _ChartPainter extends CustomPainter {
     Paint greenPaint = Paint()
       ..color = Colors.green
       ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
     Paint grayPaint = Paint()
       ..color = Colors.grey
       ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..isAntiAlias = true
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
     int splitIndex = selectedX == null
         ? points.length

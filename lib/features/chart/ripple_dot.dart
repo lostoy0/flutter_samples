@@ -43,12 +43,12 @@ class RippleDot extends StatefulWidget {
 
 class _RippleDotState extends State<RippleDot>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _rippleDotAnimController;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _rippleDotAnimController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
@@ -56,7 +56,7 @@ class _RippleDotState extends State<RippleDot>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _rippleDotAnimController.dispose();
     super.dispose();
   }
 
@@ -66,12 +66,12 @@ class _RippleDotState extends State<RippleDot>
       width: 2 * widget.radius,
       height: 2 * widget.radius,
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: _rippleDotAnimController,
         builder: (context, child) {
           return CustomPaint(
             size: Size.square(2 * widget.radius),
             painter: RippleDotPainter(
-                progress: _controller.value,
+                progress: _rippleDotAnimController.value,
                 radius: widget.radius,
                 color: widget.color,
                 centerPointRadius: widget.centerPointRadius),
